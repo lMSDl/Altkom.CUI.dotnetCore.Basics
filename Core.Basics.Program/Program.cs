@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Core.Basics.Program.Models;
 using Core.Basics.Program.Services;
 using Microsoft.Extensions.DependencyInjection;
-
+using StructureMap;
 
 namespace Core.Basics.Program
 {
@@ -25,10 +25,23 @@ namespace Core.Basics.Program
         static void Main(string[] args)
         {
             var serviceCollection = new ServiceCollection();
-            var serviceProvider = serviceCollection
-            .AddScoped<IConsoleWriteLineService, ConsoleWriteLineService>()
-            .AddScoped<IConsoleWriteLineService, ConsoleWriteFiggleLineService>()
-            .BuildServiceProvider();
+            // var serviceProvider = serviceCollection
+            // .AddScoped<IConsoleWriteLineService, ConsoleWriteLineService>()
+            // .AddScoped<IConsoleWriteLineService, ConsoleWriteFiggleLineService>()
+            // .BuildServiceProvider();
+
+            var container = new Container();
+            container.Configure(configureExpression => {
+                configureExpression.Scan(x =>
+                {
+                x.AssemblyContainingType(typeof(IConsoleWriteLineService));
+                x.WithDefaultConventions();
+                x.AddAllTypesOf<IConsoleWriteLineService>();
+                });
+                configureExpression.Populate(serviceCollection);
+            });
+
+            var serviceProvider = container.GetInstance<IServiceProvider>();
 
             foreach(var service in serviceProvider.GetServices<IConsoleWriteLineService>()) {
                 service.Execute($"{Settings.Section.Key1} {Settings.Section.Subsection.Key1}");
