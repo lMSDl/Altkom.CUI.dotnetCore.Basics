@@ -6,14 +6,6 @@
   ```
   dotnet new console [-o <LOKALIZACJA> -n <NAZWA_PROEKTU>]
   ```
-  * WebAPI
-  ```
-  dotnet new webapi [-o <LOKALIZACJA> -n <NAZWA_PROEKTU>] [--no-hhtps]
-  ```
-  * biblioteki
-  ```
-  dotnet new classlib [-o <LOKALIZACJA> -n <NAZWA_PROEKTU>]
-  ```
 
 * Kompilacja i uruchomienie
 ```
@@ -38,7 +30,7 @@ dotnet run [PARAMETRY]
   dotnet publish -c Release -r <IDENTYFIKATOR_ŚRODOWISKA_URUCHOMIENIOWEGO> --self-contained false
   ```
 
-* Pakiety i referencje
+* Pakiety
   * Dodawanie pakietów
   ```
   dotnet add package <NAZWA_PAKIETU>
@@ -46,10 +38,6 @@ dotnet run [PARAMETRY]
   * Pobranie pakietów
   ```
   dotnet restore
-  ```
-  * Dodawanie referencji
-  ```
-  dotnet add reference <ŚCIEŻKA_PROJEKTU>
   ```
 
 ## Pobieranie konfiguracji z pliku
@@ -70,3 +58,68 @@ var config = new ConfigurationBuilder()
       .Build();
 var value = config["<KLUCZ>"];
 ```
+
+* Silne typowanie
+```
+dotnet add package Microsoft.Extensions.Configuration.Binder
+```
+``` c#
+var settings = new Settings();
+config.Bind(settings);
+```
+
+* Pliki
+  * [appsettings.json](Core.Basics.Program/appsettings.json)
+  * [appsettings.xml](Core.Basics.Program/appsettings.xml)
+  * [appsettings.ini](Core.Basics.Program/appsettings.ini)
+  * [appsettings.yaml](Core.Basics.Program/appsettings.yaml)
+  * [Settings.cs](Core.Basics.Program/Models/Settings.cs)
+
+## Wstrzykiwanie zależności
+```
+dotnet add package Microsoft.Extensions.DependencyInjection
+```
+``` c#
+var serviceCollection = new ServiceCollection();
+var serviceProvider = serviceCollection
+      .AddScoped<IService, Service>()
+      .BuildServiceProvider();
+var services = serviceProvider.GetServices<IService>();
+```
+* StructureMap
+```
+dotnet add package Microsoft.Extensions.DependencyInjection
+```
+``` c#
+var serviceCollection = new ServiceCollection();
+var container = new Container();
+container.Configure(configurationExpression => {
+   configurationExpression.Scan(x => {
+      x.AssemblyContainingType(typeof(Program));
+      x.WithDefaultConventions();
+      x.AddAllTypesOf<IService>();
+   });
+   configurationExpression.Populate(serviceCollection);
+});
+var serviceProvider = container.GetInstance<IServiceProvider>();
+var services = serviceProvider.GetServices<IService>();
+```
+
+## Logowanie
+```
+dotnet add package Microsoft.Extensions.Logging
+dotnet add package Microsoft.Extensions.Logging.Configuration
+dotnet add package Microsoft.Extensions.Logging.Console
+dotnet add package Microsoft.Extensions.Logging.Debug
+```
+``` c#
+var serviceCollection = new ServiceCollection()
+   .AddLogging(builder => builder
+      .AddConsole()
+      .AddDebug()
+      .AddConfiguration(Config.GetSection("Logging")))
+   .Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
+var logger = ServiceProvider.GetService<ILogger<Program>>();
+logger.LogDebug("Hello");
+```
+* [appsettings.json](Core.Basics.Program/appsettings.json)
