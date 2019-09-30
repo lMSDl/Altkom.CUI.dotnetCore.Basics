@@ -20,6 +20,7 @@ namespace Core.Basics.Program
         public static IServiceProvider ServiceProvider {get;}
 
         public static Settings Settings {get;} = new Settings();
+        public static ILogger Logger {get;}
 
         static Program() {
             var serviceCollection = new ServiceCollection()
@@ -43,30 +44,40 @@ namespace Core.Basics.Program
 
             ServiceProvider = container.GetInstance<IServiceProvider>();
 
-            var logger = ServiceProvider.GetService<ILogger<Program>>();
-            logger.LogTrace(nameof(Program));
+            Logger = ServiceProvider.GetService<ILogger<Program>>();
+            Logger.LogTrace(nameof(Program));
 
-            logger.LogDebug("Bindowanie ustawień");
+            Logger.LogDebug("Bindowanie ustawień");
             Config.Bind(Settings);
         }
 
         static void Main(string[] args)
         {
-            var logger = ServiceProvider.GetService<ILogger<Program>>();
-            logger.LogTrace(nameof(Main));
+            Logger.LogTrace(nameof(Main));
+
+            System.AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionEventHandler;
+
 
             foreach(var service in ServiceProvider.GetServices<IConsoleWriteLineService>()) {
-                using(logger.BeginScope($"Wyświetlanie wiadomości z serwisu {service.GetType().Name}"))
+                using(Logger.BeginScope($"Wyświetlanie wiadomości z serwisu {service.GetType().Name}"))
                 {
-                    logger.LogDebug("Serwis wykonuje");
+                    if(service is ConsoleWriteEmptyLineService)
+                        throw new Exception($"{service.GetType().Name} failed");
+
+                    Logger.LogDebug("Serwis wykonuje");
                     service.Execute($"{Settings.Section.Key1} {Settings.Section.Subsection.Key1}");
-                    logger.LogDebug("Serwis wykonał");
+                    Logger.LogDebug("Serwis wykonał");
                 }
             }
-
-            
-                logger.LogDebug("Zakończenie");
+           
+                Logger.LogDebug("Zakończenie");
                 Console.ReadKey();
+        }
+
+        static void UnhandledExceptionEventHandler(object sender, UnhandledExceptionEventArgs args) {
+            Logger.LogError("Błąd");
+            Console.ReadKey();
+            Environment.Exit(1);
         }
     }
 }
