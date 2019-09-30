@@ -24,9 +24,11 @@ namespace Core.Basics.Program
         static Program() {
             var serviceCollection = new ServiceCollection()
             .AddLogging(builder => builder
-            .AddConsole(x => x.IncludeScopes = true)
-            .AddDebug())
-            .Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
+            .AddConsole()
+            //.AddConsole(x => x.IncludeScopes = true)
+            .AddDebug()
+            .AddConfiguration(Config.GetSection("Logging")));
+            //.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
             
             var container = new Container();
             container.Configure(configureExpression => {
