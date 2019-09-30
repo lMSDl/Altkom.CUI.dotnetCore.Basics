@@ -1,6 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Core.Basics.Program.Models;
+using Core.Basics.Program.Services;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Core.Basics.Program
 {
@@ -21,8 +24,15 @@ namespace Core.Basics.Program
 
         static void Main(string[] args)
         {
-            Hello(Settings.Section.Key1, Settings.Section.Subsection.Key1);
-            Hello(Config["Section:Key2"], Config["Section:Subsection:Key1"]);
+            var serviceCollection = new ServiceCollection();
+            var serviceProvider = serviceCollection
+            .AddScoped<IConsoleWriteLineService, ConsoleWriteLineService>()
+            .AddScoped<IConsoleWriteLineService, ConsoleWriteFiggleLineService>()
+            .BuildServiceProvider();
+
+            foreach(var service in serviceProvider.GetServices<IConsoleWriteLineService>()) {
+                service.Execute($"{Settings.Section.Key1} {Settings.Section.Subsection.Key1}");
+            }
         }
 
         private static void Hello(string what, string from)
