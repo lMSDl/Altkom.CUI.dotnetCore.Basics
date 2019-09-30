@@ -4,6 +4,7 @@ using Core.Basics.Program.Models;
 using Core.Basics.Program.Services;
 using Microsoft.Extensions.DependencyInjection;
 using StructureMap;
+using Microsoft.Extensions.Logging;
 
 namespace Core.Basics.Program
 {
@@ -16,20 +17,17 @@ namespace Core.Basics.Program
             //.AddYamlFile("appsettings.yaml", optional: true, reloadOnChange: true)
             .Build();
 
+        public static IServiceProvider ServiceProvider {get;}
+
         public static Settings Settings {get;} = new Settings();
 
         static Program() {
-            Config.Bind(Settings);
-        }
-
-        static void Main(string[] args)
-        {
-            var serviceCollection = new ServiceCollection();
-            // var serviceProvider = serviceCollection
-            // .AddScoped<IConsoleWriteLineService, ConsoleWriteLineService>()
-            // .AddScoped<IConsoleWriteLineService, ConsoleWriteFiggleLineService>()
-            // .BuildServiceProvider();
-
+            var serviceCollection = new ServiceCollection()
+            .AddLogging(builder => builder
+            .AddConsole(x => x.IncludeScopes = true)
+            .AddDebug())
+            .Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
+            
             var container = new Container();
             container.Configure(configureExpression => {
                 configureExpression.Scan(x =>
@@ -41,17 +39,32 @@ namespace Core.Basics.Program
                 configureExpression.Populate(serviceCollection);
             });
 
-            var serviceProvider = container.GetInstance<IServiceProvider>();
+            ServiceProvider = container.GetInstance<IServiceProvider>();
 
-            foreach(var service in serviceProvider.GetServices<IConsoleWriteLineService>()) {
-                service.Execute($"{Settings.Section.Key1} {Settings.Section.Subsection.Key1}");
-            }
+            var logger = ServiceProvider.GetService<ILogger<Program>>();
+            logger.LogTrace(nameof(Program));
+
+            logger.LogDebug("Bindowanie ustawień");
+            Config.Bind(Settings);
         }
 
-        private static void Hello(string what, string from)
+        static void Main(string[] args)
         {
-            Console.WriteLine(
-                            Figgle.FiggleFonts.Standard.Render($"{what} {from}"));
+            var logger = ServiceProvider.GetService<ILogger<Program>>();
+            logger.LogTrace(nameof(Main));
+
+            foreach(var service in ServiceProvider.GetServices<IConsoleWriteLineService>()) {
+                using(logger.BeginScope($"Wyświetlanie wiadomości z serwisu {service.GetType().Name}"))
+                {
+                    logger.LogDebug("Serwis wykonuje");
+                    service.Execute($"{Settings.Section.Key1} {Settings.Section.Subsection.Key1}");
+                    logger.LogDebug("Serwis wykonał");
+                }
+            }
+
+            
+                logger.LogDebug("Zakończenie");
+                Console.ReadKey();
         }
     }
 }
