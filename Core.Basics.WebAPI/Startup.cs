@@ -31,8 +31,13 @@ namespace Core.Basics.WebAPI
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddSingleton<CustomerFaker>();
-            services.AddSingleton<ICustomersService>(x => new FakeCustomersService(x.GetService<CustomerFaker>(), Configuration.GetValue<int>("FakerCount")));
+            services.AddSingleton<CustomerFaker>()
+            .AddSingleton<ICustomersService>(x => new FakeCustomersService(x.GetService<CustomerFaker>(), Configuration.GetValue<int>("FakerCount")))
+            .AddSingleton<ProductFaker>()
+            .AddSingleton<IProductsService>(x => new FakeProductsService(x.GetService<ProductFaker>(), Configuration.GetValue<int>("FakerCount")))
+            .AddSingleton<OrderFaker>()
+            .AddSingleton<IOrdersService>(x => new FakeOrdersService(x.GetService<OrderFaker>(), Configuration.GetValue<int>("FakerCount")));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
