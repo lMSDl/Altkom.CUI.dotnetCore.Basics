@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Bogus;
 using Core.Basics.IServices;
+using Newtonsoft.Json.Converters;
 
 namespace Core.Basics.WebAPI
 {
@@ -29,7 +30,14 @@ namespace Core.Basics.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            .AddJsonOptions(options => 
+            {
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter(camelCaseText: true));
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Serialize;
+            });
 
             services.AddSingleton<CustomerFaker>()
             .AddSingleton<ICustomersService>(x => new FakeCustomersService(x.GetService<CustomerFaker>(), Configuration.GetValue<int>("FakerCount")))
