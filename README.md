@@ -1,3 +1,6 @@
+# Zadanie
+Rozbudowa modelu poprzez dodanie do klasy Product właściwości przechowujących informacje o cenie oraz producencie. Producent jest nową klasą Company i posiada właściwość z nazwą. Dodatkowo klasa Order posiada właściwość określającą łączny koszt produków z nim powiązanych. Wraz z modyfikacją i rozbudową modelu należy wprowadzić odpowiednie zmiany i utworzyć nowe imitery źródła danych oraz kontrolery WebAPI.
+
 # Podstawy .NET Core 2.2
 
 ## CLI
