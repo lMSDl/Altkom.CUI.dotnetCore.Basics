@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Core.Basics.WebAPI.Controllers
 {
     public class ValuesController : BaseController
     {
+        public ValuesController(ILogger<ValuesController> logger) : base(logger)
+        {
+        }
+
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
+            Logger.LogDebug("Get all values");
             return new string[] { "value1", "value2", "value3" };
         }
 
@@ -19,7 +25,8 @@ namespace Core.Basics.WebAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<string> Get(int id)
         {
-            return "value";
+            Logger.LogDebug($"Get value for id = {id}");
+            return $"value{id}";
         }
 
         // POST api/values
