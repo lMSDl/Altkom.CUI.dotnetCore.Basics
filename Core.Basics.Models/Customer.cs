@@ -8,5 +8,6 @@ namespace Core.Basics.Models
         public string LastName {get; set;}
 
         public Gender Gender {get; set;}
+        public Guid? LoyaltyCardId {get; set;}
     }
 }

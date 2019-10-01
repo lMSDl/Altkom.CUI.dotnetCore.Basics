@@ -5,6 +5,7 @@ using Core.Basics.Program.Services;
 using Microsoft.Extensions.DependencyInjection;
 using StructureMap;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Core.Basics.Program
 {
@@ -78,6 +79,22 @@ namespace Core.Basics.Program
             Logger.LogError("Błąd");
             Console.ReadKey();
             Environment.Exit(1);
+        }
+
+        private void Test() {
+
+            var a = Test1Async().Result;
+            Test2Async().RunSynchronously();
+            _ = Test2Async();
+        }
+
+
+        private Task<bool> Test1Async() {
+            return Task.FromResult(true);
+        }
+
+        private Task Test2Async() {
+            return Task.Delay(0);
         }
     }
 }
