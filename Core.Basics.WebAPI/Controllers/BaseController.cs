@@ -5,7 +5,7 @@ namespace Core.Basics.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Produces("application/xml")]
+    //[Produces("application/xml")]
     public abstract class BaseController : ControllerBase
     {
         protected ILogger Logger {get;}

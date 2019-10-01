@@ -15,6 +15,12 @@ using Microsoft.Extensions.Options;
 using Bogus;
 using Core.Basics.IServices;
 using Newtonsoft.Json.Converters;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Core.Basics.Models;
+using Core.Basics.WebAPI.Middleware;
 
 namespace Core.Basics.WebAPI
 {
@@ -52,7 +58,7 @@ namespace Core.Basics.WebAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (!env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -60,6 +66,23 @@ namespace Core.Basics.WebAPI
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                app.UseMiddleware<ExceptionMiddleware>();
+                /*/app.UseExceptionHandler(appError =>
+                {
+                    appError.Run(async context => {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.ContentType = "application/json";
+
+                        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                        if(contextFeature != null)
+                        {
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails {
+                                StatusCode = context.Response.StatusCode,
+                                Message = contextFeature.Error.Message
+                            }));
+                        }
+                    });
+                });*/
             }
 
             app.UseHttpsRedirection();
