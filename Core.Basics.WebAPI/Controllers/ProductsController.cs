@@ -14,6 +14,7 @@ namespace Core.Basics.WebAPI.Controllers
             _productsService = productsService;
         }
 
+[HttpGet]
         public async Task<IActionResult> Get() {
             return Ok(await _productsService.GetAsync());
         }

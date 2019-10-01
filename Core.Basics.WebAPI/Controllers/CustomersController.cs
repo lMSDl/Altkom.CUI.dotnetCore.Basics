@@ -15,6 +15,7 @@ namespace Core.Basics.WebAPI.Controllers
             _customersService = customersService;
         }
 
+[HttpGet]
         public async Task<IActionResult> Get() {
             return Ok(await _customersService.GetAsync());
         }

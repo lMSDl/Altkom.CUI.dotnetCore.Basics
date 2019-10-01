@@ -24,6 +24,7 @@ using Core.Basics.WebAPI.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Core.Basics.WebAPI.Services;
+using Microsoft.OpenApi.Models;
 
 namespace Core.Basics.WebAPI
 {
@@ -72,6 +73,7 @@ namespace Core.Basics.WebAPI
                 };
             });
             services.AddScoped<IAuthenticateService, AuthenticateService>();
+            services.AddSwaggerGen(x => x.SwaggerDoc("v1", new OpenApiInfo {Title = "My API", Version = "v1"}));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -106,6 +108,9 @@ namespace Core.Basics.WebAPI
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+            app.UseSwagger();
+            app.UseSwaggerUI(x => {x.SwaggerEndpoint("../swagger/v1/swagger.json", "My Api v1");
+            });
             app.UseMvc();
         }
     }
