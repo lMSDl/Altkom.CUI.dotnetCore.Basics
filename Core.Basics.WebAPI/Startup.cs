@@ -37,7 +37,8 @@ namespace Core.Basics.WebAPI
                 options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter(camelCaseText: true));
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Serialize;
-            });
+            })
+            .AddXmlSerializerFormatters();
 
             services.AddSingleton<CustomerFaker>()
             .AddSingleton<ICustomersService>(x => new FakeCustomersService(x.GetService<CustomerFaker>(), Configuration.GetValue<int>("FakerCount")))
