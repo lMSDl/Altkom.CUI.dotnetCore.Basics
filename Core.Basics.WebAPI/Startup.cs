@@ -21,6 +21,9 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Core.Basics.Models;
 using Core.Basics.WebAPI.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Core.Basics.WebAPI.Services;
 
 namespace Core.Basics.WebAPI
 {
@@ -53,6 +56,22 @@ namespace Core.Basics.WebAPI
             .AddSingleton<OrderFaker>()
             .AddSingleton<IOrdersService>(x => new FakeOrdersService(x.GetService<OrderFaker>(), Configuration.GetValue<int>("FakerCount")));
 
+            services.AddAuthentication(x => {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(AuthenticateService.Key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+            services.AddScoped<IAuthenticateService, AuthenticateService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,6 +105,7 @@ namespace Core.Basics.WebAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
