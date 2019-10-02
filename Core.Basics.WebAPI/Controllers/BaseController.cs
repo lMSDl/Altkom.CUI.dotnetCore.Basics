@@ -6,7 +6,7 @@ namespace Core.Basics.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     //[Produces("application/xml")]
     public abstract class BaseController : ControllerBase
     {
