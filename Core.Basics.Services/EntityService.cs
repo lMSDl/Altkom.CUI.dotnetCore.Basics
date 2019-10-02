@@ -49,7 +49,7 @@ namespace Core.Basics.Services
 
                 return await response.Content.ReadAsAsync<ICollection<T>>();
                 }
-            catch (Exception e)
+            catch
             {
                 return null;
             }
@@ -63,7 +63,7 @@ namespace Core.Basics.Services
 
                 return await response.Content.ReadAsAsync<T>();
                 }
-            catch (Exception e)
+            catch
             {
                 return null;
             }

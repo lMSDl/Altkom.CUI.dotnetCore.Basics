@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Core.Basics.WebAPI.Services
 {
@@ -25,7 +26,7 @@ namespace Core.Basics.WebAPI.Services
         public AuthenticateService(ILogger<AuthenticateService> logger) {
             _logger = logger;
         }
-        public string Authenticate(string username, string password)
+        public Task<string> Authenticate(string username, string password)
         {
             var user = _users.SingleOrDefault(x => x.Username == username && x.Password == password);
             if(user == null)
@@ -39,7 +40,7 @@ namespace Core.Basics.WebAPI.Services
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return Task.FromResult(tokenHandler.WriteToken(token));
         }
     }
 

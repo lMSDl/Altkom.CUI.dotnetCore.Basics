@@ -13,6 +13,9 @@ namespace Core.Basics.Client
         static async Task MainAsync(string[] args)
         {
             var httpClient = new HttpClient() {BaseAddress = new Uri("http://localhost:5000")};
+            var token = await new AuthenticateService(httpClient).Authenticate("username", "Pa$$w0rd");
+
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var customerService = new CustomersService(httpClient);
             var customers = await customerService.GetAsync();            
