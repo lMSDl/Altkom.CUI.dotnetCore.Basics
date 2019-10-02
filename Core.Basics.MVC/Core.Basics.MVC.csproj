@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Basics.Models\Core.Basics.Models.csproj" />
+    <ProjectReference Include="..\Core.Basics.FakeServices\Core.Basics.FakeServices.csproj" />
+    <ProjectReference Include="..\Core.Basics.IServices\Core.Basics.IServices.csproj" />
+  </ItemGroup>
+  
+</Project>
