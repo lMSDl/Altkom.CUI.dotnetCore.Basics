@@ -1,3 +1,6 @@
+# Zadanie
+Rozbudowa modelu poprzez dodanie do klasy Product właściwości przechowujących informacje o cenie oraz producencie. Producent jest nową klasą Company i posiada właściwość z nazwą. Dodatkowo klasa Order posiada właściwość określającą łączny koszt produków z nim powiązanych. Wraz z modyfikacją i rozbudową modelu należy wprowadzić odpowiednie zmiany i utworzyć nowe imitery źródła danych oraz kontrolery WebAPI.
+
 # Podstawy .NET Core 2.2
 
 ## CLI
@@ -6,6 +9,14 @@
   ```
   dotnet new console [-o <LOKALIZACJA> -n <NAZWA_PROEKTU>]
   ```
+  * WebAPI
+  ```
+  dotnet new webapi [-o <LOKALIZACJA> -n <NAZWA_PROEKTU>] [--no-https]
+  ```
+  * biblioteki
+  ```
+  dotnet new classlib [-o <LOKALIZACJA> -n <NAZWA_PROEKTU>]
+  ```
 
 * Kompilacja i uruchomienie
 ```
@@ -13,7 +24,7 @@ dotnet build
 dotnet <NAZWA_PROJEKTU>.dll [<PARAMETRY>]
 ```
 ```
-dotnet run [PARAMETRY]
+dotnet [watch] run [PARAMETRY]
 ```
 
 * Publikacja
@@ -30,7 +41,7 @@ dotnet run [PARAMETRY]
   dotnet publish -c Release -r <IDENTYFIKATOR_ŚRODOWISKA_URUCHOMIENIOWEGO> --self-contained false
   ```
 
-* Pakiety
+* Pakiety i referencje
   * Dodawanie pakietów
   ```
   dotnet add package <NAZWA_PAKIETU>
@@ -38,6 +49,10 @@ dotnet run [PARAMETRY]
   * Pobranie pakietów
   ```
   dotnet restore
+  ```
+  * Dodawanie referencji
+  ```
+  dotnet add reference <ŚCIEŻKA_PROJEKTU>
   ```
 
 ## Pobieranie konfiguracji z pliku
@@ -122,4 +137,56 @@ var serviceCollection = new ServiceCollection()
 var logger = ServiceProvider.GetService<ILogger<Program>>();
 logger.LogDebug("Hello");
 ```
-* [appsettings.json](Core.Basics.Program/appsettings.json)
+* Plik konfiguracyjny
+[appsettings.json](Core.Basics.Program/appsettings.json)
+
+## ASP.NET
+
+* Opcje serializacji Json
+``` c#
+services.AddMvc()
+   .AddJsonOptions(options => {
+      options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+      options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+      options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+      options.SerializerSettings.Converters.Add(new StringEnumConverter(camelCaseText: true));
+});
+```
+
+* Obsługa XML
+``` c#
+services.AddMvc().AddXmlSerializerFormatters();
+```
+``` c#
+[Produces("application/xml")]
+[ApiController]
+```
+
+* Obsługa błędów
+``` c#
+public class ErrorDetails
+{
+   public int StatusCode { get; set; }
+   public string Message { get; set; }
+}
+```
+``` c#
+app.UseExceptionHandler(appError =>
+{
+   appError.Run(async context =>
+   {
+      context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+      context.Response.ContentType = "application/json";
+
+      var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+      if(contextFeature != null)
+      {
+         await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails()
+         {
+            StatusCode = context.Response.StatusCode,
+            Message = contextFeature.Error.Message
+         }));
+      }
+   });
+});
+```
