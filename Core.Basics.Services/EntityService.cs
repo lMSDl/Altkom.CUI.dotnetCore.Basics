@@ -27,9 +27,18 @@ namespace Core.Basics.Services
             }
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await Client.DeleteAsync($"{Path}?id={id}");
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<ICollection<T>> GetAsync()
@@ -60,9 +69,18 @@ namespace Core.Basics.Services
             }
         }
 
-        public Task<bool> UpdateAsync(T entity)
+        public async Task<bool> UpdateAsync(T entity)
         {
-            throw new NotImplementedException();
+             try{
+                var response = await Client.PutAsJsonAsync<T>($"{Path}?id={entity.Id}", entity);
+                response.EnsureSuccessStatusCode();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
